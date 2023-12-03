@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React PWA</title>
+
+  <!-- Manifest for PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Service Worker registration -->
+  <script>
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
+      }
+    }
+
+    // Service Worker registration
+    registerServiceWorker();
+  </script>
+
+  <!-- React, ReactDOM, and Babel scripts -->
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- React component and rendering -->
+  <script type="text/babel">
+    function App() {
+      return (
+        <div>
+          <h1>Hello, React PWA!</h1>
+        </div>
+      );
+    }
+
+    ReactDOM.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+  </script>
+
+  <!-- Service Worker code -->
+  <script>
+    const CACHE_NAME = 'react-pwa-cache';
+    const urlsToCache = ['/', '/index.html'];
+
+    self.addEventListener('install', (event) => {
+      event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+          return cache.addAll(urlsToCache);
+        })
+      );
+    });
+
+    self.addEventListener('fetch', (event) => {
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          return response || fetch(event.request);
+        })
+      );
+    });
+  </script>
+
+  <!-- Manifest for PWA configuration -->
+  <script>
+    const manifest = {
+      "name": "React PWA",
+      "short_name": "PWA",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#000000",
+      "icons": [
+        {
+          "src": "/icon.png", // Replace with the actual path
+          "sizes": "968x968", // Replace with the actual size
+          "type": "image/png"
+        }
+      ]
+    };
+
+    // Create a link element for the manifest
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = `data:application/json,${encodeURIComponent(JSON.stringify(manifest))}`;
+
+    // Append the link element to the head
+    document.head.appendChild(manifestLink);
+  </script>
+</head>
+<body>
+  <!-- Placeholder for React app -->
+  <div id="root"></div>
+</body>
+</html>
